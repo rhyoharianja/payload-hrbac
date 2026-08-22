@@ -1,9 +1,9 @@
-# payload-rbac — Dynamic Nested RBAC untuk Payload CMS
+# payload-rbac — Dynamic Nested RBAC for Payload CMS
 
 [![Version](https://img.shields.io/badge/Version-1.0.0-1F4C8C?style=for-the-badge)](https://github.com/rhyoharianja/payload-hrbac)
 [![Payload CMS](https://img.shields.io/badge/Payload_CMS-3.88-000000?style=for-the-badge&logo=payloadcms&logoColor=white)](https://payloadcms.com)
 [![Next.js](https://img.shields.io/badge/Next.js-15_%7C%2016-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
-[![Tests](https://img.shields.io/badge/Tests-62_passing-3FB950?style=for-the-badge&logo=vitest&logoColor=white)](#pengembangan)
+[![Tests](https://img.shields.io/badge/Tests-62_passing-3FB950?style=for-the-badge&logo=vitest&logoColor=white)](#development)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -18,21 +18,21 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-supported-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-supported-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
-Plugin RBAC yang dikonfigurasi dari panel admin, bukan dari kode. Menambah peran
-atau menggeser hak akses tidak butuh deploy.
+An RBAC plugin configured from the admin panel rather than from code. Adding a role
+or adjusting a permission requires no deployment.
 
-- **Dynamic** — daftar collection, global, dan **field** yang bisa diatur ditemukan
-  sendiri dari config saat boot. Tidak ada registry yang harus dirawat manual;
-  menambah collection baru langsung memunculkan pilihan izinnya di admin.
-- **Nested** dalam dua arti sekaligus:
-  - peran bisa **mewarisi** peran lain, berlapis;
-  - izin bisa turun sampai ke **field di dalam** group, array, blocks, dan tab.
+- **Dynamic** — the list of manageable collections, globals, and **fields** is
+  discovered from the config at boot. There is no registry to maintain by hand;
+  adding a new collection immediately surfaces its permissions in the admin panel.
+- **Nested** in two senses at once:
+  - a role may **inherit** from another role, to any depth;
+  - a permission may reach down to **fields inside** groups, arrays, blocks, and tabs.
 
-Plugin hanya **mempersempit** akses. Access control milik aplikasi tetap dijalankan
-dan hasilnya diiriskan, jadi memasang plugin ini tidak bisa membuka data yang
-sebelumnya tertutup.
+The plugin only ever **narrows** access. Your application's own access control still
+runs and the two results are intersected, so installing this plugin cannot open up
+data that was previously closed.
 
-## Pemasangan
+## Installation
 
 ```ts
 import { payloadRbac } from 'payload-rbac'
@@ -44,23 +44,24 @@ export default buildConfig({
 })
 ```
 
-Itu saja. Plugin akan:
+That is all. The plugin will:
 
-1. menambah collection `roles`;
-2. menambah field relasi `roles` pada collection auth (`admin.user`);
-3. memasang access CRUD pada semua collection & global yang ditemukan;
-4. memasang access pada setiap field di dalamnya;
-5. memasang `access.admin` dari centang "boleh membuka panel /admin".
+1. add a `roles` collection;
+2. add a `roles` relationship field to the auth collection (`admin.user`);
+3. attach CRUD access control to every collection and global it discovers;
+4. attach access control to each field within them;
+5. derive `access.admin` from the "may open the /admin panel" checkbox.
 
-### Langkah kedua yang wajib: `bootstrapRoles`
+### The mandatory second step: `bootstrapRoles`
 
-Instalasi baru masuk **mode bootstrap**: selama collection `roles` masih kosong,
-pengguna yang login diperlakukan sebagai super admin, supaya tidak ada yang
-terkunci sebelum peran pertama dibuat.
+A fresh installation starts in **bootstrap mode**: for as long as the `roles`
+collection is empty, any authenticated user is treated as a super admin, so that
+nobody is locked out before the first role exists.
 
-Mode itu mati begitu peran **pertama** dibuat — dan pengguna lama belum ditautkan
-ke peran mana pun, jadi saat itu juga mereka kehilangan akses. Jalankan ini sekali
-setelah memasang plugin, **sebelum** membuat peran lewat GUI:
+That mode ends the moment the **first** role is created — and since existing users
+are not yet linked to any role, they lose access at exactly that point. Run the
+following once after installing the plugin, **before** creating roles through the
+GUI:
 
 ```ts
 import { bootstrapRoles } from 'payload-rbac'
@@ -76,7 +77,7 @@ await bootstrapRoles(payload, {
       slug: 'viewer',
     },
     {
-      // Pewarisan: cukup tulis tambahannya.
+      // Inheritance: declare only the additions.
       name: 'Editor',
       collectionPermissions: [{ collection: 'pages', create: true, update: true }],
       parent: 'viewer',
@@ -86,174 +87,179 @@ await bootstrapRoles(payload, {
 })
 ```
 
-Idempoten — peran dicocokkan lewat `slug` dan yang sudah ada tidak ditimpa.
-`assignSuperAdminTo` bawaannya `'auto'`: hanya menetapkan bila **tepat satu**
-pengguna belum punya peran. Kalau lebih dari satu, skrip tidak menebak siapa yang
-layak, ia hanya memberi tahu.
+The call is idempotent — roles are matched by `slug`, and existing ones are never
+overwritten. `assignSuperAdminTo` defaults to `'auto'`, which assigns the role only
+when **exactly one** user is without one. If more than one qualifies, the script
+does not guess who deserves it; it simply reports the situation.
 
-## Cara kerja izin
+## How permissions resolve
 
-### Beberapa peran = gabungan (OR)
+### Multiple roles are unioned (OR)
 
-Punya dua peran berarti punya gabungan izin keduanya; peran paling longgar menang.
-Tidak ada mekanisme "deny menang" antar peran — mencabut satu centang di satu peran
-tidak pernah bisa menambah akses, dan itu yang membuat hasilnya bisa ditebak.
+Holding two roles means holding the union of their permissions; the most permissive
+role wins. There is no "deny wins" mechanism between roles — clearing a checkbox on
+one role can never grant access, and that is precisely what makes the outcome
+predictable.
 
-### Pewarisan ≠ memegang dua peran
+### Inheritance is not the same as holding two roles
 
-Peran turunan **adalah** induknya plus penyesuaiannya. Karena itu turunan boleh
-**mempersempit** — menutup field yang induknya biarkan terbuka. Sementara dua peran
-yang ditugaskan terpisah tidak pernah bisa saling memangkas.
+A child role **is** its parent plus its own adjustments. It may therefore **narrow**
+the parent — closing a field the parent left open. Two separately assigned roles, by
+contrast, can never trim one another.
 
 ```
 Reader          posts: read
-  └─ Editor     posts: update           → efektif: read + update
-       └─ Lead  posts: delete           → efektif: read + update + delete
+  └─ Editor     posts: update           → effective: read + update
+       └─ Lead  posts: delete           → effective: read + update + delete
 ```
 
-### Izin field
+### Field permissions
 
-Ini menjawab satu pertanyaan saja, per field:
+These answer a single question, per field:
 
-> **Pemegang peran ini boleh apa pada field tersebut?**
+> **What may the holder of this role do with that field?**
 
-Jawabannya satu pilihan, bukan tiga centang:
+The answer is one choice, not three checkboxes:
 
-| Pilihan | Yang dilihat pengguna |
+| Choice | What the user sees |
 |---|---|
-| **Boleh ubah** | Field tampil normal dan bisa diisi. |
-| **Hanya baca** | Field **tetap tampil** beserta nilainya, tapi tidak bisa diisi atau diubah. |
-| **Tersembunyi** | Field **tidak muncul sama sekali**, dan nilainya tidak ikut terkirim ke browser. |
+| **Editable** (`Boleh ubah`) | The field renders normally and can be filled in. |
+| **Read-only** (`Hanya baca`) | The field **still renders**, value included, but cannot be filled in or changed. |
+| **Hidden** (`Tersembunyi`) | The field **does not render at all**, and its value is never sent to the browser. |
 
-Ketiganya bukan istilah buatan plugin ini — persis perilaku Payload sendiri.
-`RenderFields` mengembalikan `null` bila tidak ada izin baca, dan memaksa
-`readOnly` bila tidak ada izin operasinya. Yang plugin ini lakukan hanyalah
-menerjemahkan satu pilihan Anda ke tiga izin yang dimengerti Payload:
+None of the three is an invention of this plugin — they are Payload's own behaviour.
+`RenderFields` returns `null` when there is no read permission, and forces `readOnly`
+when the operation is not permitted. All this plugin does is translate your single
+choice into the three permissions Payload understands:
 
-| Pilihan | `read` | `create` | `update` |
+| Choice | `read` | `create` | `update` |
 |---|---|---|---|
-| Boleh ubah | ✓ | ✓ | ✓ |
-| Hanya baca | ✓ | — | — |
-| Tersembunyi | — | — | — |
+| Editable | ✓ | ✓ | ✓ |
+| Read-only | ✓ | — | — |
+| Hidden | — | — | — |
 
-Penegakannya berlaku di **semua jalur**, bukan hanya tampilan: lewat REST/GraphQL
-pun, nilai field "tersembunyi" tidak ikut terkirim, dan perubahan pada field
-"hanya baca" diabaikan diam-diam sementara field lain di dokumen yang sama tetap
-tersimpan.
+Enforcement applies across **every route**, not merely the UI: over REST and GraphQL
+alike, the value of a "hidden" field is not transmitted, and writes to a "read-only"
+field are silently discarded while the remaining fields of the same document are
+still saved.
 
-#### Di mana mengaturnya
+#### Where it is configured
 
-**Semuanya di satu tempat: di dalam baris collection/global-nya sendiri.**
+**Everything sits in one place: inside the row for the collection or global itself.**
 
-Tab *Collection & Global* → satu baris per entitas yang boleh disentuh peran ini.
-Di dalam baris itu ada tiga hal:
+The *Collection & Global* tab holds one row per entity this role may touch. Each row
+contains three things:
 
-1. **Centang CRUD** — Buat / Baca / Ubah / Hapus.
-2. **Field yang tidak didaftarkan** — satu dropdown:
-   - *Boleh diubah* (bawaan) — hanya field yang Anda atur khusus yang dibatasi
-   - *Tertutup* — hanya field yang Anda atur khusus yang boleh
-3. **Akses per Field** — tombol yang membuka panel berisi **field milik
-   collection itu saja**, masing-masing dengan empat pilihan:
+1. **CRUD checkboxes** — Create / Read / Update / Delete.
+2. **Unlisted fields** (`Field yang tidak didaftarkan`) — a single dropdown:
+   - *Editable* (`Boleh diubah`, the default) — only the fields you configure
+     explicitly are restricted;
+   - *Closed* (`Tertutup`) — only the fields you configure explicitly are permitted.
+3. **Per-field access** (`Akses per Field`) — a button that opens a panel listing
+   **only the fields belonging to that collection**, each with four choices:
 
-   > `Ikuti izin` · `Boleh ubah` · `Hanya baca` · `Tersembunyi`
+   > `Ikuti izin` (inherit) · `Boleh ubah` (editable) · `Hanya baca` (read-only) ·
+   > `Tersembunyi` (hidden)
 
-   `Ikuti izin` adalah bawaan dan tidak menyimpan apa pun — field itu memakai
-   aturan dari poin 1 dan 2. Jadi baris tanpa pengecualian tetap kosong.
+   `Ikuti izin` is the default and stores nothing — such a field simply follows the
+   rules from points 1 and 2. A row with no exceptions therefore stays empty.
 
-Tidak ada tab terpisah dan tidak ada dropdown berisi seluruh field dari seluruh
-collection. Daftar yang muncul mengikuti entitas yang dipilih di baris yang sama;
-mengganti collection langsung mengganti daftarnya.
+There is no separate tab, and no dropdown containing every field of every
+collection. The list shown follows the entity selected in the same row; changing the
+collection changes the list immediately.
 
-Panelnya punya kotak pencarian, dan ringkasan pengecualian tampil langsung di
-baris tanpa perlu membukanya.
+The panel provides a search box, and a summary of the configured exceptions appears
+on the row itself without having to open it.
 
-**Catatan teknis:** nilainya disimpan sebagai `json` (`path field → tingkat
-akses`), bukan sebagai baris array dengan `select`. Selain karena daftar
-pilihannya harus difilter per baris — yang tidak bisa dilakukan `select` Payload
-— sebuah `select` berisi seluruh field dari seluruh collection akan menjadi enum
-Postgres bernilai ribuan yang ikut berubah setiap kali ada field ditambah.
+**Implementation note:** the value is stored as `json` (`field path → access level`)
+rather than as array rows with a `select`. Beyond the fact that the option list has
+to be filtered per row — which a Payload `select` cannot do — a `select` holding
+every field of every collection would become a Postgres enum with thousands of
+members that changes every time a field is added.
 
-#### Contoh
+#### Examples
 
-**"Editor boleh mengubah artikel, tapi kolom catatan internal hanya boleh dibaca."**
+**"Editors may edit articles, but the internal notes column is read-only."**
 
-1. Tab *Collection & Global* → tambah baris `articles`, centang Baca + Ubah.
-2. Di baris yang sama → **Akses per Field** → cari `internalNotes` → pilih
-   **Hanya baca**.
+1. *Collection & Global* tab → add a row for `articles`, tick Read + Update.
+2. In the same row → **Akses per Field** → search for `internalNotes` → choose
+   **Hanya baca** (read-only).
 
-Hasil: editor bisa mengubah judul, isi, dan seluruh field lain; kolom catatan
-internal tetap terlihat tapi tidak bisa diketik.
+Result: the editor can change the title, the body, and every other field; the
+internal notes column remains visible but cannot be typed into.
 
-**"Kontributor hanya boleh mengubah judul artikel, tidak boleh yang lain."**
+**"Contributors may edit the article title and nothing else."**
 
-1. Tab *Collection & Global* → baris `articles`, centang Baca + Ubah, lalu ubah
-   "Field yang tidak didaftarkan" menjadi **Tertutup**.
-2. Di baris yang sama → **Akses per Field** → `title` → **Boleh ubah**.
+1. *Collection & Global* tab → row for `articles`, tick Read + Update, then set
+   `Field yang tidak didaftarkan` to **Tertutup** (closed).
+2. In the same row → **Akses per Field** → `title` → **Boleh ubah** (editable).
 
-Hasil: hanya judul yang bisa diubah; field lain tampil read-only.
+Result: only the title is editable; every other field renders read-only.
 
-#### Field bersarang
+#### Nested fields
 
-Bentuk path field:
+Field paths take the following shape:
 
 ```
-title                  field biasa
-hero.heading           group / tab bernama
-links.label            array (izin berlaku untuk seluruh baris, bukan baris tertentu)
-layout.cta.heading     blocks: <namaField>.<slugBlock>.<field>
+title                  a plain field
+hero.heading           a named group or tab
+links.label            an array (the permission covers every row, not a single one)
+layout.cta.heading     blocks: <fieldName>.<blockSlug>.<field>
 ```
 
-Wadah tanpa nama (`row`, `collapsible`, tab tanpa nama) transparan — anaknya
-memakai prefix induk bernama terdekat.
+Unnamed containers (`row`, `collapsible`, unnamed tabs) are transparent — their
+children take the prefix of the nearest named ancestor.
 
-Pada mode *Tertutup*, wadah induk ikut terbuka bila anaknya terdaftar:
-mendaftarkan `hero.heading` sudah cukup, tidak perlu ikut mendaftarkan `hero`.
-Kalau tidak, Payload membuang seluruh group sebelum sampai ke anaknya.
+In *Tertutup* (closed) mode, a parent container is opened automatically when one of
+its children is listed: listing `hero.heading` is sufficient, and `hero` need not be
+listed as well. Without that, Payload would discard the entire group before ever
+reaching its children.
 
-#### Saat peran digabung
+#### When roles are combined
 
-Aturan OR tetap berlaku: **satu field tertutup hanya bila SEMUA peran yang
-dimiliki user menutupnya.** Peran yang tidak berpendapat soal field itu dianggap
-mengizinkan. Untuk pewarisan berlaku sebaliknya — peran turunan boleh
-mempersempit, karena ia adalah induknya plus penyesuaian.
+The OR rule continues to apply: **a field is closed only if EVERY role the user
+holds closes it.** A role that expresses no opinion about a field is taken to permit
+it. For inheritance the reverse holds — a child role may narrow, because it is its
+parent plus adjustments.
 
-**Batasan yang disengaja:** izin field hanya berlaku bagi pengguna collection auth
-yang dikelola. Untuk pembaca publik plugin tidak ikut campur, karena yang diatur
-admin adalah "siapa di antara staf yang boleh menyentuh field ini" — menyembunyikan
-field dari API publik adalah urusan access control collection.
+**A deliberate limitation:** field permissions apply only to users of the managed
+auth collection. The plugin does not interfere with public readers, because what the
+administrator configures is "which member of staff may touch this field" — hiding a
+field from a public API is a matter for collection access control.
 
-## Opsi
+## Options
 
-| Opsi | Bawaan | Keterangan |
+| Option | Default | Description |
 |---|---|---|
-| `rolesSlug` | `roles` | Slug collection peran. |
-| `authCollection` | `admin.user` / `users` | Collection yang memiliki peran. |
-| `userRolesField` | `roles` | Nama field relasi peran. |
-| `collections` / `globals` | semua | Batasi entitas yang dikelola. |
-| `excludeCollections` / `excludeGlobals` | `[]` | Kebalikannya. |
-| `fieldPermissionEntities` | semua | Batasi entitas yang muncul di dropdown izin field. Berguna pada proyek besar. |
-| `excludeFieldPaths` | `[]` | Path field yang tidak boleh disentuh RBAC, mis. `collection:users:email`. |
-| `enforceCollectionAccess` | `true` | Pasang access CRUD. |
-| `enforceFieldAccess` | `true` | Pasang access field. |
-| `enforceAdminAccess` | `true` | Pasang `access.admin`. |
-| `cache` | in-memory | Ganti untuk deployment multi-instance. |
-| `cacheTTLSeconds` | `60` | Umur cache matriks izin. |
-| `bootstrapSuperAdmin` | `true` | Mode anti-lockout saat `roles` kosong. |
-| `adminGroup` | `System` | Grup sidebar collection `roles`. |
-| `entityLabels` | `{}` | Label ramah untuk slug tertentu. |
-| `disabled` | `false` | Matikan penegakan, collection `roles` tetap ada (skema tetap konsisten untuk migrasi). |
+| `rolesSlug` | `roles` | Slug of the roles collection. |
+| `authCollection` | `admin.user` / `users` | The collection that holds roles. |
+| `userRolesField` | `roles` | Name of the roles relationship field. |
+| `collections` / `globals` | all | Restrict which entities are managed. |
+| `excludeCollections` / `excludeGlobals` | `[]` | The inverse. |
+| `fieldPermissionEntities` | all | Restrict which entities appear in the field-permission dropdown. Useful on large projects. |
+| `excludeFieldPaths` | `[]` | Field paths RBAC must not touch, e.g. `collection:users:email`. |
+| `enforceCollectionAccess` | `true` | Attach CRUD access control. |
+| `enforceFieldAccess` | `true` | Attach field access control. |
+| `enforceAdminAccess` | `true` | Attach `access.admin`. |
+| `cache` | in-memory | Replace for multi-instance deployments. |
+| `cacheTTLSeconds` | `60` | Lifetime of the permission-matrix cache. |
+| `bootstrapSuperAdmin` | `true` | Anti-lockout mode while `roles` is empty. |
+| `adminGroup` | `System` | Sidebar group for the `roles` collection. |
+| `entityLabels` | `{}` | Friendly labels for particular slugs. |
+| `disabled` | `false` | Disable enforcement while keeping the `roles` collection (so the schema stays consistent for migrations). |
 
-### Cache multi-instance
+### Multi-instance caching
 
-Bawaannya in-memory, cukup untuk satu proses. Untuk beberapa instance, pasang
-adapter sendiri supaya perubahan peran langsung terasa di semua node:
+The default cache is in-memory, which is sufficient for a single process. For
+several instances, supply your own adapter so that a change to a role takes effect
+on every node at once:
 
 ```ts
 import type { PayloadRbacCache } from 'payload-rbac'
 
 const redisCache: PayloadRbacCache = {
   clear: async (prefix) => {
-    /* SCAN + DEL, jangan KEYS — blocking di production */
+    /* SCAN + DEL, never KEYS — it blocks in production */
   },
   get: (key) => redis.get(key),
   set: async (key, value, ttl) => {
@@ -264,9 +270,9 @@ const redisCache: PayloadRbacCache = {
 payloadRbac({ cache: redisCache })
 ```
 
-## Helper di luar access control
+## Helpers outside access control
 
-Untuk route handler, hook, atau komponen server:
+For route handlers, hooks, or server components:
 
 ```ts
 import { createPayloadRbacHelpers } from 'payload-rbac'
@@ -278,52 +284,54 @@ await rbac.canField(req, 'collection', 'pages', 'hero.heading', 'update')
 await rbac.isSuperAdmin(req)
 await rbac.hasRole(req, 'editor')
 
-// Siap dipakai sebagai `access` collection:
+// Ready to use as collection `access`:
 export const Secrets = { access: { read: rbac.superAdminOnly } }
 ```
 
-Opsi yang dioper harus sama dengan yang dipakai saat memasang plugin.
+The options passed here must match those given when the plugin was installed.
 
-## Pengaman anti-lockout
+## Anti-lockout safeguards
 
-1. Peran `isSuperAdmin` mengabaikan seluruh centang, dan peran super admin
-   **terakhir** tidak bisa dihapus.
-2. Peran `isSystem` tidak bisa dihapus.
-3. Peran yang masih menjadi induk peran lain, atau masih dipakai pengguna, tidak
-   bisa dihapus.
-4. Rantai pewarisan melingkar ditolak saat disimpan, dan tetap aman dibaca kalau
-   sudah terlanjur ada.
-5. Field `roles` pada pengguna hanya bisa diubah super admin — tanpa ini siapa pun
-   yang boleh mengubah pengguna bisa menaikkan haknya sendiri.
-6. Collection `roles` hanya bisa ditulis super admin.
+1. A role marked `isSuperAdmin` ignores every checkbox, and the **last** remaining
+   super admin role cannot be deleted.
+2. A role marked `isSystem` cannot be deleted.
+3. A role that is still the parent of another role, or is still assigned to a user,
+   cannot be deleted.
+4. Circular inheritance chains are rejected on save, and remain safe to read should
+   one already exist.
+5. The `roles` field on a user may be changed only by a super admin — without this,
+   anyone permitted to edit users could escalate their own privileges.
+6. The `roles` collection is writable by super admins only.
 
-## Catatan Postgres
+## Postgres notes
 
-Setiap field `select` menjadi tipe **enum** di Postgres, termasuk dropdown izin
-field. Konsekuensinya:
+Every `select` field becomes an **enum** type in Postgres, the field-permission
+dropdown included. The consequences are:
 
-- Menambah/menghapus field di aplikasi mengubah enum, jadi ikut muncul di
-  migrasi. Ini wajar — daftar izin memang harus mengikuti skema.
-- Pada proyek besar dropdown-nya bisa berisi ribuan opsi. Pakai
-  `fieldPermissionEntities` untuk membatasinya ke entitas yang benar-benar butuh
-  kontrol per-field.
-- Entitas yang **tidak ada** tidak pernah dibuatkan field-nya: proyek tanpa global
-  tidak akan punya `globalPermissions`. Enum kosong tidak terlihat oleh pembanding
-  skema Payload dan akan gagal dibuat ulang di setiap boot, jadi ini disengaja.
+- Adding or removing a field in the application alters the enum, so it shows up in
+  migrations. This is expected — the permission list is supposed to track the
+  schema.
+- On a large project the dropdown may hold thousands of options. Use
+  `fieldPermissionEntities` to narrow it to the entities that genuinely require
+  per-field control.
+- Entities that do **not** exist never have a field generated for them: a project
+  without globals will have no `globalPermissions`. An empty enum is invisible to
+  Payload's schema comparator and would fail to be recreated on every boot, so this
+  is deliberate.
 
-## Pengembangan
+## Development
 
 ```bash
 pnpm install
-pnpm test        # 40 unit + 22 integrasi (SQLite in-memory)
+pnpm test        # 40 unit + 22 integration (SQLite in-memory)
 pnpm build
-pnpm dev         # test bed di dev/
+pnpm dev         # test bed in dev/
 ```
 
-## Dukungan
+## Support
 
-Kalau paket ini menghemat waktu Anda, kontribusi kecil sangat dihargai — meski tidak
-pernah diharapkan. Dananya dipakai untuk menjaga paket ini tetap mengikuti rilis Payload.
+If this package saved you time, a contribution is warmly appreciated — though never
+expected. It goes towards keeping the package current with Payload's releases.
 
 <a href="https://paypal.me/sgkharianja" target="_blank">
   <img src="https://img.shields.io/badge/Donate-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white" alt="Donate with PayPal" height="40"/>
@@ -333,9 +341,9 @@ pernah diharapkan. Dananya dipakai untuk menjaga paket ini tetap mengikuti rilis
   <img src="https://img.shields.io/badge/Saweria-Donate-F97316?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Donate via Saweria" height="40"/>
 </a>
 
-Laporan bug dan pull request sama berharganya, dan gratis:
-[buka issue](https://github.com/rhyoharianja/payload-hrbac/issues).
+Bug reports and pull requests are equally valuable, and free:
+[open an issue](https://github.com/rhyoharianja/payload-hrbac/issues).
 
-## Lisensi
+## License
 
-MIT © Suryo Galih Kencana Harianja. Lihat [LICENSE](LICENSE).
+MIT © Suryo Galih Kencana Harianja. See [LICENSE](LICENSE).
