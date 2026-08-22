@@ -1,0 +1,114 @@
+{
+  "name": "payload-rbac",
+  "version": "1.0.0",
+  "description": "Dynamic Nested RBAC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhyoharianja/payload-hrbac.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rhyoharianja/payload-hrbac/issues"
+  },
+  "homepage": "https://github.com/rhyoharianja/payload-hrbac#readme",
+  "funding": [
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/sgkharianja"
+    },
+    {
+      "type": "individual",
+      "url": "https://saweria.co/rhioharianja"
+    }
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "import": "./dist/exports/client.js",
+      "types": "./dist/exports/client.d.ts",
+      "default": "./dist/exports/client.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm copyfiles && pnpm build:types && pnpm build:swc",
+    "build:swc": "swc ./src -d ./dist --config-file .swcrc --strip-leading-paths",
+    "build:types": "tsc --outDir dist --rootDir ./src",
+    "clean": "rimraf {dist,*.tsbuildinfo}",
+    "copyfiles": "copyfiles -u 1 \"src/**/*.{html,css,scss,ttf,woff,woff2,eot,svg,jpg,png,json}\" dist/",
+    "dev": "next dev dev --turbo",
+    "dev:generate-importmap": "pnpm dev:payload generate:importmap",
+    "dev:generate-types": "pnpm dev:payload generate:types",
+    "dev:payload": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload",
+    "generate:importmap": "pnpm dev:generate-importmap",
+    "generate:types": "pnpm dev:generate-types",
+    "lint": "eslint",
+    "lint:fix": "eslint ./src --fix",
+    "test": "pnpm build && vitest run",
+    "test:watch": "vitest",
+    "watch": "swc ./src -d ./dist --config-file .swcrc --strip-leading-paths --watch"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@payloadcms/db-mongodb": "3.88.0",
+    "@payloadcms/db-postgres": "3.88.0",
+    "@payloadcms/db-sqlite": "3.88.0",
+    "@payloadcms/eslint-config": "3.28.0",
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/richtext-lexical": "3.88.0",
+    "@payloadcms/ui": "3.88.0",
+    "@playwright/test": "1.58.2",
+    "@swc-node/register": "1.10.9",
+    "@swc/cli": "0.6.0",
+    "@types/node": "22.19.9",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "copyfiles": "2.4.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.23.0",
+    "eslint-config-next": "16.3.0",
+    "graphql": "^16.8.1",
+    "mongodb-memory-server": "10.1.4",
+    "next": "16.3.0",
+    "open": "^10.1.0",
+    "payload": "3.88.0",
+    "prettier": "^3.4.2",
+    "qs-esm": "8.0.1",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "rimraf": "3.0.2",
+    "sharp": "0.34.2",
+    "sort-package-json": "^2.10.0",
+    "typescript": "5.7.3",
+    "vite-tsconfig-paths": "6.0.5",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "payload": "^3.88.0"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0",
+    "pnpm": "^9 || ^10 || ^11"
+  },
+  "registry": "https://registry.npmjs.org/",
+  "dependencies": {},
+  "author": "Suryo Galih Kencana Harianja <harianja.suryo@gmail.com>",
+  "keywords": [
+    "payload",
+    "payloadcms",
+    "plugin",
+    "rbac",
+    "permissions",
+    "access-control",
+    "field-level-security"
+  ]
+}

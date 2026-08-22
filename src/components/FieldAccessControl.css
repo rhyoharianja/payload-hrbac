@@ -1,0 +1,111 @@
+/*
+ * Gaya pengatur akses per field.
+ *
+ * Memakai token milik Payload (`--theme-*`) supaya ikut mode terang/gelap dan
+ * tetap serasi bila panel diberi tema lain.
+ */
+.payload-rbac-field-access__empty,
+.payload-rbac-field-access__intro {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--theme-elevation-500);
+}
+
+.payload-rbac-field-access__toggler {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-s, 3px);
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-800);
+  font: inherit;
+  cursor: pointer;
+}
+
+.payload-rbac-field-access__toggler:hover {
+  border-color: var(--theme-elevation-250);
+}
+
+.payload-rbac-field-access__summary {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+  color: var(--theme-elevation-600);
+}
+
+.payload-rbac-field-access__summary code {
+  color: var(--theme-elevation-800);
+}
+
+.payload-rbac-field-access__search {
+  width: 100%;
+  margin: 14px 0;
+  padding: 9px 12px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-s, 3px);
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-800);
+  font: inherit;
+}
+
+.payload-rbac-field-access__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payload-rbac-field-access__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--theme-elevation-100);
+}
+
+.payload-rbac-field-access__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.payload-rbac-field-access__name {
+  font-weight: 500;
+  color: var(--theme-elevation-800);
+}
+
+.payload-rbac-field-access__path {
+  font-size: 0.76rem;
+  color: var(--theme-elevation-450);
+}
+
+.payload-rbac-field-access__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.payload-rbac-field-access__option {
+  padding: 5px 10px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-s, 3px);
+  background: transparent;
+  color: var(--theme-elevation-600);
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.payload-rbac-field-access__option:hover {
+  border-color: var(--theme-elevation-300);
+  color: var(--theme-elevation-900);
+}
+
+.payload-rbac-field-access__option--active {
+  border-color: var(--theme-elevation-800);
+  background: var(--theme-elevation-800);
+  color: var(--theme-elevation-0);
+}
