@@ -4,14 +4,14 @@
  * Memakai token milik Payload (`--theme-*`) supaya ikut mode terang/gelap dan
  * tetap serasi bila panel diberi tema lain.
  */
-.payload-rbac-field-access__empty,
-.payload-rbac-field-access__intro {
+.payload-hrbac-field-access__empty,
+.payload-hrbac-field-access__intro {
   margin: 6px 0 0;
   font-size: 0.85rem;
   color: var(--theme-elevation-500);
 }
 
-.payload-rbac-field-access__toggler {
+.payload-hrbac-field-access__toggler {
   display: inline-flex;
   align-items: center;
   padding: 8px 14px;
@@ -23,22 +23,22 @@
   cursor: pointer;
 }
 
-.payload-rbac-field-access__toggler:hover {
+.payload-hrbac-field-access__toggler:hover {
   border-color: var(--theme-elevation-250);
 }
 
-.payload-rbac-field-access__summary {
+.payload-hrbac-field-access__summary {
   margin: 10px 0 0;
   padding-left: 18px;
   font-size: 0.82rem;
   color: var(--theme-elevation-600);
 }
 
-.payload-rbac-field-access__summary code {
+.payload-hrbac-field-access__summary code {
   color: var(--theme-elevation-800);
 }
 
-.payload-rbac-field-access__search {
+.payload-hrbac-field-access__search {
   width: 100%;
   margin: 14px 0;
   padding: 9px 12px;
@@ -49,13 +49,13 @@
   font: inherit;
 }
 
-.payload-rbac-field-access__list {
+.payload-hrbac-field-access__list {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.payload-rbac-field-access__row {
+.payload-hrbac-field-access__row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -65,30 +65,30 @@
   border-bottom: 1px solid var(--theme-elevation-100);
 }
 
-.payload-rbac-field-access__meta {
+.payload-hrbac-field-access__meta {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.payload-rbac-field-access__name {
+.payload-hrbac-field-access__name {
   font-weight: 500;
   color: var(--theme-elevation-800);
 }
 
-.payload-rbac-field-access__path {
+.payload-hrbac-field-access__path {
   font-size: 0.76rem;
   color: var(--theme-elevation-450);
 }
 
-.payload-rbac-field-access__options {
+.payload-hrbac-field-access__options {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
 
-.payload-rbac-field-access__option {
+.payload-hrbac-field-access__option {
   padding: 5px 10px;
   border: 1px solid var(--theme-elevation-150);
   border-radius: var(--style-radius-s, 3px);
@@ -99,12 +99,12 @@
   white-space: nowrap;
 }
 
-.payload-rbac-field-access__option:hover {
+.payload-hrbac-field-access__option:hover {
   border-color: var(--theme-elevation-300);
   color: var(--theme-elevation-900);
 }
 
-.payload-rbac-field-access__option--active {
+.payload-hrbac-field-access__option--active {
   border-color: var(--theme-elevation-800);
   background: var(--theme-elevation-800);
   color: var(--theme-elevation-0);

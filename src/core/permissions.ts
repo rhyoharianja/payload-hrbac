@@ -20,7 +20,7 @@ import { emptyMatrix, mergeRoles, resolveAssignedRoles, superAdminMatrix } from 
  * database, bukan ke "izinkan saja".
  */
 
-const REQUEST_CACHE_KEY = '__payloadRbacMatrix'
+const REQUEST_CACHE_KEY = '__payloadHrbacMatrix'
 
 /** Ambil daftar id peran dari dokumen user, baik ter-populate maupun belum. */
 export const extractRoleIds = (user: unknown, rolesField: string): (number | string)[] => {
@@ -130,7 +130,7 @@ const buildMatrix = async (
     // Instalasi baru: tanpa ini, memasang plugin akan langsung mengunci semua
     // orang dari /admin dan tidak ada cara membuat peran pertama lewat GUI.
     req.payload.logger.warn(
-      `[payload-rbac] Collection \`${opts.rolesSlug}\` masih kosong — pengguna ` +
+      `[payload-hrbac] Collection \`${opts.rolesSlug}\` masih kosong — pengguna ` +
         `\`${opts.authCollection}\` yang login diperlakukan sebagai super admin. ` +
         'Buat minimal satu peran untuk mematikan mode ini.',
     )
@@ -142,7 +142,7 @@ const buildMatrix = async (
     // mode bootstrap mati, dan pengguna lama belum ditautkan ke peran mana pun.
     // Tanpa pesan ini gejalanya cuma 403 tanpa keterangan.
     req.payload.logger.warn(
-      `[payload-rbac] Pengguna \`${opts.authCollection}\` yang login belum punya peran, ` +
+      `[payload-hrbac] Pengguna \`${opts.authCollection}\` yang login belum punya peran, ` +
         'sehingga tidak punya akses apa pun. Tetapkan perannya, atau jalankan `bootstrapRoles()`.',
     )
     return emptyMatrix()

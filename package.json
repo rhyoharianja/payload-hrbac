@@ -1,7 +1,7 @@
 {
-  "name": "payload-rbac",
+  "name": "payload-hrbac",
   "version": "1.0.0",
-  "description": "Dynamic Nested RBAC",
+  "description": "Dynamic nested RBAC for Payload CMS — roles, inheritance, and field-level permissions configured from the admin panel",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -39,8 +39,13 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "pnpm copyfiles && pnpm build:types && pnpm build:swc",
+    "prepublishOnly": "pnpm clean && pnpm build && vitest run",
     "build:swc": "swc ./src -d ./dist --config-file .swcrc --strip-leading-paths",
     "build:types": "tsc --outDir dist --rootDir ./src",
     "clean": "rimraf {dist,*.tsbuildinfo}",
@@ -93,13 +98,14 @@
     "vitest": "4.0.18"
   },
   "peerDependencies": {
-    "payload": "^3.88.0"
+    "@payloadcms/ui": "^3.88.0",
+    "payload": "^3.88.0",
+    "react": "^19.0.0"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0",
     "pnpm": "^9 || ^10 || ^11"
   },
-  "registry": "https://registry.npmjs.org/",
   "dependencies": {},
   "author": "Suryo Galih Kencana Harianja <harianja.suryo@gmail.com>",
   "keywords": [

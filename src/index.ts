@@ -2,7 +2,7 @@ import type { Config, Field, OptionObject } from 'payload'
 
 import type {
   EntityFieldInfo,
-  PayloadRbacPluginConfig,
+  PayloadHrbacPluginConfig,
   PluginFactory,
   ResolvedOptions,
 } from './types.js'
@@ -27,7 +27,7 @@ export * from './helpers.js'
 export * from './types.js'
 
 /**
- * payload-rbac — Dynamic Nested RBAC untuk Payload CMS.
+ * payload-hrbac — Dynamic Nested RBAC untuk Payload CMS.
  *
  * "Dynamic" karena daftar collection, global, dan FIELD yang bisa diatur
  * ditemukan sendiri dari config saat boot — tidak ada registry yang harus
@@ -41,8 +41,8 @@ export * from './types.js'
  * dan hasilnya diiriskan, jadi memasang plugin ini tidak bisa membuka data yang
  * sebelumnya tertutup.
  */
-export const payloadRbac =
-  (pluginOptions: PayloadRbacPluginConfig = {}): PluginFactory =>
+export const payloadHrbac =
+  (pluginOptions: PayloadHrbacPluginConfig = {}): PluginFactory =>
   (config: Config): Config => {
     const opts = resolveOptions(pluginOptions, config)
 
@@ -119,7 +119,7 @@ export const payloadRbac =
     config.admin = config.admin ?? {}
     config.admin.custom = {
       ...config.admin.custom,
-      payloadRbac: { ...(config.admin.custom?.payloadRbac as object), entityFields },
+      payloadHrbac: { ...(config.admin.custom?.payloadHrbac as object), entityFields },
     }
 
     config.collections = [
@@ -216,7 +216,7 @@ const pickSlugs = (
 }
 
 const resolveOptions = (
-  pluginOptions: PayloadRbacPluginConfig,
+  pluginOptions: PayloadHrbacPluginConfig,
   config: Config,
 ): ResolvedOptions => ({
   adminGroup: pluginOptions.adminGroup ?? 'System',
@@ -235,7 +235,7 @@ const attachRolesField = (config: Config, opts: ResolvedOptions): void => {
   const auth = (config.collections ?? []).find((c) => c.slug === opts.authCollection)
   if (!auth) {
     throw new Error(
-      `[payload-rbac] Collection auth \`${opts.authCollection}\` tidak ditemukan di config. ` +
+      `[payload-hrbac] Collection auth \`${opts.authCollection}\` tidak ditemukan di config. ` +
         'Set opsi `authCollection` ke slug yang benar.',
     )
   }

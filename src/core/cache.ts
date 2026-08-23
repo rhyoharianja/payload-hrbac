@@ -1,4 +1,4 @@
-import type { PayloadRbacCache } from '../types.js'
+import type { PayloadHrbacCache } from '../types.js'
 
 /**
  * Cache in-memory bawaan.
@@ -16,16 +16,16 @@ import type { PayloadRbacCache } from '../types.js'
 
 type Entry = { expiresAt: number; value: string }
 
-const globalStore = globalThis as unknown as { __payloadRbacCache?: Map<string, Entry> }
+const globalStore = globalThis as unknown as { __payloadHrbacCache?: Map<string, Entry> }
 
 const store = (): Map<string, Entry> => {
-  if (!globalStore.__payloadRbacCache) {
-    globalStore.__payloadRbacCache = new Map()
+  if (!globalStore.__payloadHrbacCache) {
+    globalStore.__payloadHrbacCache = new Map()
   }
-  return globalStore.__payloadRbacCache
+  return globalStore.__payloadHrbacCache
 }
 
-export const createMemoryCache = (): PayloadRbacCache => ({
+export const createMemoryCache = (): PayloadHrbacCache => ({
   clear: async (keyPrefix) => {
     const map = store()
     for (const key of map.keys()) {
@@ -52,7 +52,7 @@ export const createMemoryCache = (): PayloadRbacCache => ({
   },
 })
 
-export const CACHE_PREFIX = 'payload-rbac:'
+export const CACHE_PREFIX = 'payload-hrbac:'
 
 export const matrixCacheKey = (rolesSlug: string, roleIds: (number | string)[]): string =>
   `${CACHE_PREFIX}${rolesSlug}:matrix:${roleIds.length ? [...roleIds].sort().join('-') : 'none'}`

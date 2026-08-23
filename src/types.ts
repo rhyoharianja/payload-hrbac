@@ -99,7 +99,7 @@ export type PermissionMatrix = {
  * ganti dengan Redis/Memcached bila aplikasi berjalan multi-instance, supaya
  * perubahan peran langsung terasa di semua node.
  */
-export type PayloadRbacCache = {
+export type PayloadHrbacCache = {
   /** Hapus seluruh key yang diawali prefix ini. */
   clear: (keyPrefix: string) => Promise<void>
   get: (key: string) => Promise<null | string>
@@ -111,7 +111,7 @@ export type EntityLabel = {
   slug: string
 }
 
-export type PayloadRbacPluginConfig = {
+export type PayloadHrbacPluginConfig = {
   /** Grup sidebar untuk collection `roles`. Bawaan `System`. */
   adminGroup?: string
 
@@ -127,7 +127,7 @@ export type PayloadRbacPluginConfig = {
    */
   bootstrapSuperAdmin?: boolean
 
-  cache?: PayloadRbacCache
+  cache?: PayloadHrbacCache
 
   /** Umur cache matriks izin. Bawaan 60 detik. */
   cacheTTLSeconds?: number
@@ -187,10 +187,10 @@ export type PayloadRbacPluginConfig = {
 
 /** Opsi yang sudah dinormalisasi — dipakai internal oleh mesin RBAC. */
 export type ResolvedOptions = {
-  cache: PayloadRbacCache
+  cache: PayloadHrbacCache
 } & Required<
   Pick<
-    PayloadRbacPluginConfig,
+    PayloadHrbacPluginConfig,
     | 'adminGroup'
     | 'authCollection'
     | 'bootstrapSuperAdmin'

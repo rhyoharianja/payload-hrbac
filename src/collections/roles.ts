@@ -316,8 +316,8 @@ const fieldAccessField = (entityType: 'collection' | 'global'): Field => ({
   name: 'fieldAccess',
   type: 'json',
   admin: {
-    components: { Field: 'payload-rbac/client#FieldAccessControl' },
-    custom: { payloadRbacEntityType: entityType },
+    components: { Field: 'payload-hrbac/client#FieldAccessControl' },
+    custom: { payloadHrbacEntityType: entityType },
   },
   label: 'Akses per Field',
 })
@@ -326,7 +326,7 @@ const collectionPermissionsField = (options: OptionObject[]): Field => ({
   name: 'collectionPermissions',
   type: 'array',
   admin: {
-    components: { RowLabel: 'payload-rbac/client#CollectionPermissionRowLabel' },
+    components: { RowLabel: 'payload-hrbac/client#CollectionPermissionRowLabel' },
   },
   fields: [
     { name: 'collection', type: 'select', options, required: true },

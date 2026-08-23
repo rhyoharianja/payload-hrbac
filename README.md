@@ -1,4 +1,4 @@
-# payload-rbac — Dynamic Nested RBAC for Payload CMS
+# payload-hrbac — Dynamic Nested RBAC for Payload CMS
 
 [![Version](https://img.shields.io/badge/Version-1.0.0-1F4C8C?style=for-the-badge)](https://github.com/rhyoharianja/payload-hrbac)
 [![Payload CMS](https://img.shields.io/badge/Payload_CMS-3.88-000000?style=for-the-badge&logo=payloadcms&logoColor=white)](https://payloadcms.com)
@@ -35,12 +35,12 @@ data that was previously closed.
 ## Installation
 
 ```ts
-import { payloadRbac } from 'payload-rbac'
+import { payloadHrbac } from 'payload-hrbac'
 
 export default buildConfig({
   admin: { user: 'users' },
   collections: [Users, Pages, Media],
-  plugins: [payloadRbac()],
+  plugins: [payloadHrbac()],
 })
 ```
 
@@ -64,7 +64,7 @@ following once after installing the plugin, **before** creating roles through th
 GUI:
 
 ```ts
-import { bootstrapRoles } from 'payload-rbac'
+import { bootstrapRoles } from 'payload-hrbac'
 
 await bootstrapRoles(payload, {
   assignSuperAdminTo: ['admin@example.com'],
@@ -255,9 +255,9 @@ several instances, supply your own adapter so that a change to a role takes effe
 on every node at once:
 
 ```ts
-import type { PayloadRbacCache } from 'payload-rbac'
+import type { PayloadHrbacCache } from 'payload-hrbac'
 
-const redisCache: PayloadRbacCache = {
+const redisCache: PayloadHrbacCache = {
   clear: async (prefix) => {
     /* SCAN + DEL, never KEYS — it blocks in production */
   },
@@ -267,7 +267,7 @@ const redisCache: PayloadRbacCache = {
   },
 }
 
-payloadRbac({ cache: redisCache })
+payloadHrbac({ cache: redisCache })
 ```
 
 ## Helpers outside access control
@@ -275,9 +275,9 @@ payloadRbac({ cache: redisCache })
 For route handlers, hooks, or server components:
 
 ```ts
-import { createPayloadRbacHelpers } from 'payload-rbac'
+import { createPayloadHrbacHelpers } from 'payload-hrbac'
 
-const rbac = createPayloadRbacHelpers({ authCollection: 'users' })
+const rbac = createPayloadHrbacHelpers({ authCollection: 'users' })
 
 await rbac.can(req, 'pages', 'update')
 await rbac.canField(req, 'collection', 'pages', 'hero.heading', 'update')

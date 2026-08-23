@@ -4,7 +4,7 @@ import type {
   CollectionAction,
   FieldAction,
   GlobalAction,
-  PayloadRbacPluginConfig,
+  PayloadHrbacPluginConfig,
   ResolvedOptions,
 } from './types.js'
 
@@ -26,7 +26,7 @@ import { getPermissions, isManagedUser } from './core/permissions.js'
  * dari situlah nama collection auth dan slug peran dibaca. Cache bawaan berbagi
  * penyimpanan yang sama dengan plugin, jadi tidak ada duplikasi query.
  */
-export const createPayloadRbacHelpers = (pluginOptions: PayloadRbacPluginConfig = {}) => {
+export const createPayloadHrbacHelpers = (pluginOptions: PayloadHrbacPluginConfig = {}) => {
   const opts: ResolvedOptions = {
     adminGroup: pluginOptions.adminGroup ?? 'System',
     authCollection: pluginOptions.authCollection ?? 'users',

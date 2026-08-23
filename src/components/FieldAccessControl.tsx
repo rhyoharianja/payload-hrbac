@@ -49,11 +49,11 @@ const siblingPath = (path: string, name: string): string =>
 export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) => {
   const { config } = useConfig()
   const { setValue, value } = useField<FieldAccessMap>({ path })
-  const drawerSlug = useDrawerSlug(`payloadRbac-fields-${path}`)
+  const drawerSlug = useDrawerSlug(`payloadHrbac-fields-${path}`)
   const [query, setQuery] = React.useState('')
 
   const entityType =
-    ((field?.admin?.custom as { payloadRbacEntityType?: string } | undefined)?.payloadRbacEntityType ??
+    ((field?.admin?.custom as { payloadHrbacEntityType?: string } | undefined)?.payloadHrbacEntityType ??
       'collection') as 'collection' | 'global'
 
   // Nilai entitas dibaca dari baris yang SAMA, bukan dari state komponen ini:
@@ -63,7 +63,7 @@ export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) =>
     return typeof sibling?.value === 'string' ? sibling.value : ''
   })
 
-  const catalogue = (config.admin?.custom?.payloadRbac as
+  const catalogue = (config.admin?.custom?.payloadHrbac as
     | { entityFields?: Record<string, EntityFieldInfo[]> }
     | undefined)?.entityFields
 
@@ -98,18 +98,18 @@ export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) =>
 
   if (!entitySlug) {
     return (
-      <div className="field-type payload-rbac-field-access">
+      <div className="field-type payload-hrbac-field-access">
         <FieldLabel label={field?.label} path={path} />
-        <p className="payload-rbac-field-access__empty">Pilih entitasnya lebih dulu.</p>
+        <p className="payload-hrbac-field-access__empty">Pilih entitasnya lebih dulu.</p>
       </div>
     )
   }
 
   if (!fields.length) {
     return (
-      <div className="field-type payload-rbac-field-access">
+      <div className="field-type payload-hrbac-field-access">
         <FieldLabel label={field?.label} path={path} />
-        <p className="payload-rbac-field-access__empty">
+        <p className="payload-hrbac-field-access__empty">
           Entitas ini tidak punya field yang bisa diatur.
         </p>
       </div>
@@ -117,17 +117,17 @@ export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) =>
   }
 
   return (
-    <div className="field-type payload-rbac-field-access">
+    <div className="field-type payload-hrbac-field-access">
       <FieldLabel label={field?.label} path={path} />
 
-      <DrawerToggler className="payload-rbac-field-access__toggler" slug={drawerSlug}>
+      <DrawerToggler className="payload-hrbac-field-access__toggler" slug={drawerSlug}>
         {overrides === 0
           ? 'Semua field mengikuti izin di atas — atur pengecualian'
           : `${overrides} field diatur khusus — ubah`}
       </DrawerToggler>
 
       {overrides > 0 ? (
-        <ul className="payload-rbac-field-access__summary">
+        <ul className="payload-hrbac-field-access__summary">
           {Object.entries(current).map(([fieldPath, level]) => (
             <li key={fieldPath}>
               <code>{fieldPath}</code> — {SUMMARY[level] ?? level}
@@ -137,37 +137,37 @@ export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) =>
       ) : null}
 
       <Drawer slug={drawerSlug} title={`Akses field — ${entitySlug}`}>
-        <p className="payload-rbac-field-access__intro">
+        <p className="payload-hrbac-field-access__intro">
           Field yang dibiarkan <strong>Ikuti izin</strong> memakai aturan dari baris
           collection ini. Atur hanya yang perlu dibedakan.
         </p>
 
         <input
           aria-label="Cari field"
-          className="payload-rbac-field-access__search"
+          className="payload-hrbac-field-access__search"
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Cari field…"
           type="text"
           value={query}
         />
 
-        <div className="payload-rbac-field-access__list">
+        <div className="payload-hrbac-field-access__list">
           {visible.map((entry) => {
             const level = current[entry.path] ?? null
             return (
-              <div className="payload-rbac-field-access__row" key={entry.path}>
-                <div className="payload-rbac-field-access__meta">
-                  <span className="payload-rbac-field-access__name">{entry.label}</span>
-                  <code className="payload-rbac-field-access__path">
+              <div className="payload-hrbac-field-access__row" key={entry.path}>
+                <div className="payload-hrbac-field-access__meta">
+                  <span className="payload-hrbac-field-access__name">{entry.label}</span>
+                  <code className="payload-hrbac-field-access__path">
                     {entry.path} · {entry.type}
                   </code>
                 </div>
-                <div className="payload-rbac-field-access__options">
+                <div className="payload-hrbac-field-access__options">
                   <button
                     aria-pressed={level === null}
                     className={[
-                      'payload-rbac-field-access__option',
-                      level === null && 'payload-rbac-field-access__option--active',
+                      'payload-hrbac-field-access__option',
+                      level === null && 'payload-hrbac-field-access__option--active',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -181,8 +181,8 @@ export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) =>
                     <button
                       aria-pressed={level === option.value}
                       className={[
-                        'payload-rbac-field-access__option',
-                        level === option.value && 'payload-rbac-field-access__option--active',
+                        'payload-hrbac-field-access__option',
+                        level === option.value && 'payload-hrbac-field-access__option--active',
                       ]
                         .filter(Boolean)
                         .join(' ')}
@@ -199,7 +199,7 @@ export const FieldAccessControl: JSONFieldClientComponent = ({ field, path }) =>
             )
           })}
           {visible.length === 0 ? (
-            <p className="payload-rbac-field-access__empty">Tidak ada field yang cocok.</p>
+            <p className="payload-hrbac-field-access__empty">Tidak ada field yang cocok.</p>
           ) : null}
         </div>
       </Drawer>

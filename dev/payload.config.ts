@@ -2,7 +2,7 @@ import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
-import { payloadRbac } from 'payload-rbac'
+import { payloadHrbac } from 'payload-hrbac'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -108,7 +108,7 @@ export default buildConfig({
     await seed(payload)
   },
   plugins: [
-    payloadRbac({
+    payloadHrbac({
       entityLabels: { posts: 'Artikel', 'site-settings': 'Pengaturan Situs' },
     }),
   ],

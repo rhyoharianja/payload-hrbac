@@ -19,13 +19,13 @@
       "@payload-config": [
         "./payload.config.ts"
       ],
-      "payload-rbac": [
+      "payload-hrbac": [
         "../src/index.ts"
       ],
-      "payload-rbac/client": [
+      "payload-hrbac/client": [
         "../src/exports/client.ts"
       ],
-      "payload-rbac/rsc": [
+      "payload-hrbac/rsc": [
         "../src/exports/rsc.ts"
       ]
     },

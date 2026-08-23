@@ -100,7 +100,7 @@ export const bootstrapRoles = async (
     const parentId = idBySlug.get(seed.parent)
     if (selfId === undefined || parentId === undefined) {
       payload.logger.warn(
-        `[payload-rbac] Peran induk \`${seed.parent}\` untuk \`${seed.slug}\` tidak ditemukan — pewarisan dilewati.`,
+        `[payload-hrbac] Peran induk \`${seed.parent}\` untuk \`${seed.slug}\` tidak ditemukan — pewarisan dilewati.`,
       )
       continue
     }
@@ -113,7 +113,7 @@ export const bootstrapRoles = async (
   }
 
   payload.logger.info(
-    `[payload-rbac] peran dibuat: ${created.length ? created.join(', ') : '— (semua sudah ada)'}`,
+    `[payload-hrbac] peran dibuat: ${created.length ? created.join(', ') : '— (semua sudah ada)'}`,
   )
 
   if (assign === 'none') {
@@ -124,7 +124,7 @@ export const bootstrapRoles = async (
   const superAdminId = superAdminSlug ? idBySlug.get(superAdminSlug) : undefined
   if (superAdminId === undefined) {
     payload.logger.warn(
-      '[payload-rbac] Tidak ada peran super admin di daftar seed — tidak ada yang ditetapkan.',
+      '[payload-hrbac] Tidak ada peran super admin di daftar seed — tidak ada yang ditetapkan.',
     )
     return
   }
@@ -140,7 +140,7 @@ export const bootstrapRoles = async (
   )
 
   if (!withoutRoles.length) {
-    payload.logger.info('[payload-rbac] semua pengguna sudah punya peran.')
+    payload.logger.info('[payload-hrbac] semua pengguna sudah punya peran.')
     return
   }
 
@@ -155,7 +155,7 @@ export const bootstrapRoles = async (
     // diambil skrip. Lebih baik terkunci dan diberi tahu daripada diam-diam
     // memberi akses penuh ke pengguna yang tidak seharusnya.
     payload.logger.warn(
-      `[payload-rbac] ${withoutRoles.length} pengguna belum punya peran: ` +
+      `[payload-hrbac] ${withoutRoles.length} pengguna belum punya peran: ` +
         `${withoutRoles.map((u) => (u as { email?: string }).email).join(', ')}. ` +
         'Tetapkan perannya lewat panel admin, atau oper daftar email ke `assignSuperAdminTo`.',
     )
@@ -170,7 +170,7 @@ export const bootstrapRoles = async (
       overrideAccess: true,
     })
     payload.logger.info(
-      `[payload-rbac] ${(user as { email?: string }).email} ditetapkan sebagai Super Admin.`,
+      `[payload-hrbac] ${(user as { email?: string }).email} ditetapkan sebagai Super Admin.`,
     )
   }
 }
